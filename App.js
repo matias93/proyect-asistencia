@@ -1,11 +1,14 @@
 import React from 'react';
 import AppNavigator from './navigation/AppNavigator';
-import StoreProvider from './store/index';
+import { Provider } from "react-redux"
+import store from './store/index';
 
 const App = () => (
-  <StoreProvider>
+  <Provider store={store}>
     <AppNavigator />
-  </StoreProvider>
+  </Provider>
+
+
 );
 
 export default App;

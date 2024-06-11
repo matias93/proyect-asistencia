@@ -1,12 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { registerForPushNotificationsAsync, scheduleNotification } from '../utils/notifications';
+
 
 const HomeScreen = ({ navigation }) => {
-  useEffect(() => {
-    registerForPushNotificationsAsync();
-    scheduleNotification();
-  }, []);
 
   return (
     <View style={styles.container}>

@@ -1,15 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { Text, StyleSheet, View, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
-import appFirebase from '../utils/credentialsFire';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { useSignInMutation } from "../services/authService";
+import { setUser } from "../features/authSlice";
 import { isValidEmail, isValidPassword } from '../utils/regex';
 
-const auth = getAuth(appFirebase);
 
 const Login = (props) => {
+    const dispatch = useDispatch();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [triggerSignIn, result] = useSignInMutation();
+
+    useEffect(() => {
+        if (result.isSuccess) {
+            console.log("🕵🏻 ~ useEffect ~ result:", result)
+            dispatch(
+                setUser({
+                    email: result.data.email,
+                    idToken: result.data.idToken,
+                })
+            )
+        }
+        console.log("🕵🏻 ~ useEffect ~ result:", result)
+    }, [result])
 
     const userLogin = async () => {
         try {
@@ -25,7 +40,8 @@ const Login = (props) => {
                 setErrorMessage('La contraseña debe tener máximo 8 caracteres');
                 return;
             }
-            await signInWithEmailAndPassword(auth, email, password);
+            triggerSignIn({ email, password })
+            console.log(result)
             Alert.alert('Iniciando sesión', 'Accediendo...');
             props.navigation.navigate('Home');
         } catch (error) {

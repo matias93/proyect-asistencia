@@ -1,42 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, Modal } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import * as Location from 'expo-location';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { fetchDataUserRequest } from '../store/userReducer';
+import { useGetDatosUserQuery } from '../services/userInformation'
+
 
 const AttendanceScreen = () => {
-  const dispatch = useDispatch();
-  const records = useSelector(state => state.attendance.records);
-  const userData = useSelector(state => state.datauser);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({});
+  const { data: datosuser } = useGetDatosUserQuery();
 
-  useEffect(() => {
-    dispatch(fetchDataUserRequest());
-  }, [dispatch]);
-
+  /**
+   * 
+   * @param {*} action 
+   */
   const handleAddRecord = async (action) => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Se denegó el permiso para acceder a la ubicación');
-      return;
-    }
-
-    let location = await Location.getCurrentPositionAsync({});
-    const newRecord = {
-      time: new Date().toLocaleString(),
-      location: `Lat: ${location.coords.latitude}, Lon: ${location.coords.longitude}`,
-    };
-
-    dispatch({ type: 'ADD_RECORD_REQUEST', payload: newRecord });
-
-    const user = userData
     const data = {
       action,
-      name: user.name,
-      rut: user.rut,
-      message: action === 'Entrada' ? user.msn1 : user.msn2,
+      name: datosuser.name,
+      rut: datosuser.rut,
+      message: action === 'Entrada' ? datosuser.ms1 : datosuser.ms2,
     };
 
     setModalData(data);
@@ -46,11 +29,6 @@ const AttendanceScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registro de Asistencias</Text>
-      <FlatList
-        data={records}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => <Text style={styles.record}>{`${item.time} - ${item.location}`}</Text>}
-      />
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.entryButton} onPress={() => handleAddRecord('Entrada')}>
           <Icon name="sign-in" size={20} color="#fff" style={styles.icon} />

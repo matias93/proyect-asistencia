@@ -6,6 +6,7 @@ const dataUserSlice = createSlice({
         datauser: {},
         loading: false,
         error: null,
+        imageCamara:null
     },
     reducers: {
         fetchDataUserRequest: (state) => {
@@ -19,6 +20,10 @@ const dataUserSlice = createSlice({
             state.loading = false;
             state.error = action.payload;
         },
+        setCameraImage: (state, {payload}) => {
+            //Add logic
+            state.value.imageCamera = payload
+        }
     },
 });
 
@@ -26,6 +31,7 @@ export const {
     fetchDataUserRequest,
     fetchDataUserSuccess,
     fetchDataUserFailure,
+    setCameraImage,
 } = dataUserSlice.actions;
 
 export default dataUserSlice.reducer;

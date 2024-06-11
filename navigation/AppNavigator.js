@@ -9,11 +9,16 @@ import Login from '../screens/Login';
 import { getAuth, signOut } from 'firebase/auth';
 import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { clearUser } from '../features/authSlice';
 
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
   const handleLogout = async (navigation) => {
+    clearUser({
+      email: '',
+      idToken: '',
+    })
     const auth = getAuth();
     try {
       await signOut(auth);
@@ -48,7 +53,7 @@ const AppNavigator = () => {
             headerTitleAlign: 'center',
             headerStyle: { backgroundColor: '#525FE1' },
             gestureEnabled: false,
-            headerLeft:null,
+            headerLeft: null,
             headerRight: () => (
               <TouchableOpacity onPress={() => handleLogout(navigation)} style={{ marginRight: 10 }}>
                 <Icon name="logout" size={24} color="white" />

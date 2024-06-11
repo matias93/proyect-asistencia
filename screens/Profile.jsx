@@ -2,46 +2,77 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, Modal } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
-import { fetchDataUserRequest } from '../store/userReducer'; 
+import { setCameraImage } from '../store/userReducer';
+import {useGetDatosUserQuery} from '../services/userInformation'
 
 const ProfileScreen = () => {
     const dispatch = useDispatch();
-    const userData = useSelector(state => state.datauser);
     const [image, setImage] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
 
+    const {data: datosuser} = useGetDatosUserQuery();
+
     useEffect(() => {
-        dispatch(fetchDataUserRequest());
-    }, [dispatch]);
+        if (datosuser != undefined) {
+            console.log("mi data ==========>",datosuser)
+        }
+        
+        // dispatch(fetchDataUserRequest());
+    }, [dispatch,datosuser]);
+
+    const verifyCameraPermissions = async () => {
+        const { granted } = await ImagePicker.requestCameraPermissionsAsync()
+        return granted
+    }
 
     const pickImage = async () => {
-        let { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            alert('Permission to access media library was denied');
-            return;
+
+        try {
+            const permissionCamera = await verifyCameraPermissions()
+
+            if (permissionCamera) {
+                let result = await ImagePicker.launchCameraAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.All,
+                    allowsEditing: true,
+                    aspect: [1, 1],
+                    base64: true,
+                    quality: 0.2
+                })
+                // console.log(result);
+                // console.log(result.assets[0].base64.length);
+                if (!result.canceled) {
+                    const image = `data:image/jpeg;base64,${result.assets[0].base64}`
+                    setImage(image)
+                }
+            }
+
+        } catch (error) {
+            console.log(error);
         }
 
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
-        });
 
-        console.log(result); // Añadido para depuración
+    };
 
-        if (!result.cancelled) {
-            setImage(result.uri);
-        } else {
-            console.log('Image selection was cancelled'); // Añadido para depuración
+    const confirmImage = async () => {
+        try {
+            dispatch(setCameraImage(image))
+            triggerPostImage({image, localId})
+            navigation.goBack()
+        } catch (error) {
+            console.log(error);
         }
+        /* try {
+            dispatch(setCameraImage(image));
+            triggerSaveImage({image, localId})
+        } catch (error) {
+            console.log(error);
+        }
+        navigation.goBack(); */
     };
 
     const handleShowData = () => {
         setModalVisible(true);
     };
-
-    const user = userData;
 
     return (
         <View style={styles.container}>
@@ -52,10 +83,10 @@ const ProfileScreen = () => {
                     <Text style={styles.emptyStateText}>Sin Foto</Text>
                 </View>
             )}
-            {user ? (
+            {datosuser ? (
                 <>
-                    <Text style={styles.name}>{user.name}</Text>
-                    <Text style={styles.email}>{user.email}</Text>
+                    <Text style={styles.name}>{datosuser.name}</Text>
+                    <Text style={styles.email}>{datosuser.email}</Text>
                 </>
             ) : (
                 <Text style={styles.loading}></Text>
@@ -76,11 +107,11 @@ const ProfileScreen = () => {
                     <View style={styles.modalContainer}>
                         <Text style={styles.modalTitle}>Mis Datos</Text>
                         {image && <Image source={{ uri: image }} style={styles.modalImage} />}
-                        {user && (
+                        {datosuser && (
                             <>
-                                <Text style={styles.modalText}><Text style={styles.label}>Nombre:</Text> {user.name}</Text>
-                                <Text style={styles.modalText}><Text style={styles.label}>Email:</Text> {user.email}</Text>
-                                <Text style={styles.modalText}><Text style={styles.label}>RUT:</Text> {user.rut}</Text>
+                                <Text style={styles.modalText}><Text style={styles.label}>Nombre:</Text> {datosuser.name}</Text>
+                                <Text style={styles.modalText}><Text style={styles.label}>Email:</Text> {datosuser.email}</Text>
+                                <Text style={styles.modalText}><Text style={styles.label}>RUT:</Text> {datosuser.rut}</Text>
                             </>
                         )}
                         <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
