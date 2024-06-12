@@ -1,7 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-
+/**
+ * 
+ * @param {*} param0 
+ * @returns 
+ */
 const HomeScreen = ({ navigation }) => {
 
   return (
@@ -18,6 +22,12 @@ const HomeScreen = ({ navigation }) => {
         onPress={() => navigation.navigate('Profile')}
       >
         <Text style={styles.buttonText}>Mi Perfil</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate('Task')}
+      >
+        <Text style={styles.buttonText}>Adm Tareas</Text>
       </TouchableOpacity>
     </View>
   );

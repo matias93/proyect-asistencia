@@ -1,9 +1,0 @@
-{
-  "datosuser": {
-    "email": "usuario@example.com",
-    "ms1": "mensaje1",
-    "ms2": "mensaje2",
-    "name": "Nombre del Usuario",
-    "rut": "12345678-9"
-  }
-}

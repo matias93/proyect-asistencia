@@ -4,9 +4,9 @@ import { Text, StyleSheet, View, Image, TextInput, TouchableOpacity, Alert } fro
 import { useSignInMutation } from "../services/authService";
 import { setUser } from "../features/authSlice";
 import { isValidEmail, isValidPassword } from '../utils/regex';
+import { insertSession } from '../persistence';
 
-
-const Login = (props) => {
+const Login = ({ navigation }) => {
     const dispatch = useDispatch();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -14,17 +14,28 @@ const Login = (props) => {
     const [triggerSignIn, result] = useSignInMutation();
 
     useEffect(() => {
-        if (result.isSuccess) {
-            console.log("🕵🏻 ~ useEffect ~ result:", result)
-            dispatch(
-                setUser({
-                    email: result.data.email,
-                    idToken: result.data.idToken,
-                })
-            )
+        if (result?.data && result.isSuccess) {
+            insertSession({
+                email: result.data.email,
+                token: result.data.idToken,
+            }).then(() => {
+                dispatch(
+                    setUser({
+                        email: result.data.email,
+                        idToken: result.data.idToken,
+                    })
+                );
+
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Home' }],
+                });
+            })
+                .catch((error) => {
+                    console.log("🕵🏻 ~ useEffect ~ error insertSession:", error);
+                });
         }
-        console.log("🕵🏻 ~ useEffect ~ result:", result)
-    }, [result])
+    }, [result, dispatch, navigation]);
 
     const userLogin = async () => {
         try {
@@ -40,10 +51,8 @@ const Login = (props) => {
                 setErrorMessage('La contraseña debe tener máximo 8 caracteres');
                 return;
             }
-            triggerSignIn({ email, password })
-            console.log(result)
+            triggerSignIn({ email, password });
             Alert.alert('Iniciando sesión', 'Accediendo...');
-            props.navigation.navigate('Home');
         } catch (error) {
             console.log(error);
             handleAuthError(error);
@@ -74,11 +83,10 @@ const Login = (props) => {
         <View style={styles.container}>
             <View>
                 <Image
-                    source={require('../assets/rrhh.png')}
+                    source={require('../../assets/rrhh.png')}
                     style={styles.profile}
                 />
             </View>
-
             <View style={styles.card}>
                 <View style={styles.boxText}>
                     <TextInput
@@ -90,7 +98,6 @@ const Login = (props) => {
                         autoCapitalize='none'
                     />
                 </View>
-
                 <View style={styles.boxText}>
                     <TextInput
                         placeholder='password'
@@ -100,11 +107,9 @@ const Login = (props) => {
                         value={password}
                     />
                 </View>
-
                 {errorMessage ? (
                     <Text style={styles.errorText}>{errorMessage}</Text>
                 ) : null}
-
                 <View style={styles.containerBtn}>
                     <TouchableOpacity style={styles.boxBtn} onPress={userLogin}>
                         <Text style={styles.textBtn}>Iniciar Sesión</Text>

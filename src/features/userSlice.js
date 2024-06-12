@@ -20,10 +20,6 @@ const dataUserSlice = createSlice({
             state.loading = false;
             state.error = action.payload;
         },
-        setCameraImage: (state, {payload}) => {
-            //Add logic
-            state.value.imageCamera = payload
-        }
     },
 });
 

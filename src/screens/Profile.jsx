@@ -1,24 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, Modal } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
-import { setCameraImage } from '../store/userReducer';
-import {useGetDatosUserQuery} from '../services/userInformation'
+import { useGetDatosUserQuery } from '../services/userInformation'
 
 const ProfileScreen = () => {
-    const dispatch = useDispatch();
     const [image, setImage] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
-
-    const {data: datosuser} = useGetDatosUserQuery();
-
-    useEffect(() => {
-        if (datosuser != undefined) {
-            console.log("mi data ==========>",datosuser)
-        }
-        
-        // dispatch(fetchDataUserRequest());
-    }, [dispatch,datosuser]);
+    const { data: datosuser } = useGetDatosUserQuery();
 
     const verifyCameraPermissions = async () => {
         const { granted } = await ImagePicker.requestCameraPermissionsAsync()
@@ -38,8 +26,6 @@ const ProfileScreen = () => {
                     base64: true,
                     quality: 0.2
                 })
-                // console.log(result);
-                // console.log(result.assets[0].base64.length);
                 if (!result.canceled) {
                     const image = `data:image/jpeg;base64,${result.assets[0].base64}`
                     setImage(image)
@@ -51,23 +37,6 @@ const ProfileScreen = () => {
         }
 
 
-    };
-
-    const confirmImage = async () => {
-        try {
-            dispatch(setCameraImage(image))
-            triggerPostImage({image, localId})
-            navigation.goBack()
-        } catch (error) {
-            console.log(error);
-        }
-        /* try {
-            dispatch(setCameraImage(image));
-            triggerSaveImage({image, localId})
-        } catch (error) {
-            console.log(error);
-        }
-        navigation.goBack(); */
     };
 
     const handleShowData = () => {
@@ -92,8 +61,9 @@ const ProfileScreen = () => {
                 <Text style={styles.loading}></Text>
             )}
             <TouchableOpacity style={styles.button} onPress={pickImage}>
-                <Text style={styles.buttonText}>Seleccionar Foto</Text>
+                <Text style={styles.buttonText}>Tomar Foto</Text>
             </TouchableOpacity>
+            
             <TouchableOpacity style={styles.button} onPress={handleShowData}>
                 <Text style={styles.buttonText}>Ver mis datos</Text>
             </TouchableOpacity>
