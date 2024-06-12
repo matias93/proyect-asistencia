@@ -17,4 +17,4 @@ export const userApi = createApi({
   }),
 });
 
-export const { useGetDatosUserQuery , useGetProfileImageQuery, usePostProfileImageMutation} = userApi;
+export const { useGetDatosUserQuery} = userApi;
